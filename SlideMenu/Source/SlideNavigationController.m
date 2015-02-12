@@ -573,21 +573,24 @@ static SlideNavigationController *singletonInstance;
 
 - (void)prepareMenuForReveal:(Menu)menu
 {
-	// Only prepare menu if it has changed (ex: from MenuLeft to MenuRight or vice versa)
-    if (self.lastRevealedMenu && menu == self.lastRevealedMenu)
-        return;
-    
     UIViewController *menuViewController = (menu == MenuLeft) ? self.leftMenu : self.rightMenu;
-	UIViewController *removingMenuViewController = (menu == MenuLeft) ? self.rightMenu : self.leftMenu;
-
+    UIViewController *removingMenuViewController = (menu == MenuLeft) ? self.rightMenu : self.leftMenu;
+    
+    // Only prepare menu if it has changed (ex: from MenuLeft to MenuRight or vice versa)
+    if (self.lastRevealedMenu && menu == self.lastRevealedMenu) {
+        // Re-insert at proper position in heirarchy
+        [menuViewController.view removeFromSuperview];
+        [self.view.superview insertSubview:menuViewController.view belowSubview:self.view];
+    }
+    
     self.lastRevealedMenu = menu;
-	
-	[removingMenuViewController.view removeFromSuperview];
-	[self.view.superview insertSubview:menuViewController.view atIndex:0];
-
-	[self updateMenuFrameAndTransformAccordingToOrientation];
-	
-	[self.menuRevealAnimator prepareMenuForAnimation:menu];
+    
+    [removingMenuViewController.view removeFromSuperview];
+    [self.view.superview insertSubview:menuViewController.view belowSubview:self.view];
+    
+    [self updateMenuFrameAndTransformAccordingToOrientation];
+    
+    [self.menuRevealAnimator prepareMenuForAnimation:menu];
 }
 
 - (CGFloat)horizontalLocation
